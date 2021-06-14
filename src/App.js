@@ -42,7 +42,6 @@ const WordCtn = styled.div`
     css`
       color: #888;
       text-align: right;
-      border-right: 1px solid black;
     `}
 
     ${(props) =>
@@ -86,10 +85,13 @@ const WordListCtn = styled.div`
 const CurrentWordCtn = styled.div`
   display: flex;
   flex-grow: 0;
-  /* width: 20%; */
   justify-content: center;
   border-bottom: 3px solid blue;
   padding: 0.5em 0.5rem;
+`
+
+const VerticalLine = styled.span`
+  border-right: 1px solid black;
 `
 
 const Ctn = styled.div`
@@ -136,24 +138,53 @@ function WordList({ words, complete }) {
   );
 }
 
+function isCorrect(target, current) {
+  let correctNugget = ''
+  let incorrectNugget = ''
+  if (!target.startsWith(current)) {
+    for (let i = 0; i < current.length; i++) {
+      if (target[i] === current[i]) {
+        correctNugget = `${correctNugget}${current[i]}`
+      } else {
+        incorrectNugget = current.substring(i)
+        break
+      }
+    }
+  } else {
+    correctNugget = current
+  }
+  return {correctNugget: correctNugget, incorrectNugget: incorrectNugget}
+}
+
 function CurrentWord({ word }) {
   const fullWord = word.full;
   const currentWordVal = word.current;
-  const todoComps = fullWord.split(currentWordVal);
+  const {correctNugget, incorrectNugget } = isCorrect(fullWord, currentWordVal)
+
+  const todoComps = fullWord.split(correctNugget);
   if (currentWordVal) {
     todoComps.shift();
   }
 
+
   return (
     <CurrentWordCtn>
       <WordCtn
-        key={`cur_${currentWordVal}`}
-        incorrect={!fullWord.startsWith(currentWordVal)}
+        key={`cur_${correctNugget}`}
         current
         complete
       >
-        {currentWordVal}
+        {correctNugget}
       </WordCtn>
+      <WordCtn
+        key={`cur_${incorrectNugget}`}
+        current
+        complete
+        incorrect={true}
+      >
+        {incorrectNugget}
+      </WordCtn>
+      <VerticalLine />
       <WordCtn key={fullWord} current>
         {todoComps.join(currentWordVal)}
       </WordCtn>
